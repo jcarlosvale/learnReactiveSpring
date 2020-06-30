@@ -3,9 +3,8 @@ package com.learnreactivespring.fluxAndMonoPlayground;
 
 import org.junit.Test;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import java.awt.*;
 
 public class FluxAndMonoTest {
     @Test
@@ -40,6 +39,35 @@ public class FluxAndMonoTest {
                 .expectNext("Reactive")
                 .expectErrorMessage("Some exception")
               //  .expectError(RuntimeException.class)
+                .verify();
+    }
+
+    @Test
+    public void fluxCountElementsTest(){
+        Flux<String> fluxString = Flux.just("Spring", "Flux", "Reactive")
+                .concatWith(Flux.error(new RuntimeException("Some exception")));
+        StepVerifier
+                .create(fluxString)
+                .expectNextCount(3)
+                .expectErrorMessage("Some exception")
+                //  .expectError(RuntimeException.class)
+                .verify();
+    }
+
+    @Test
+    public void monoTest(){
+        Mono<String> monoString = Mono.just("Spring");
+        StepVerifier
+                .create(monoString.log())
+                .expectNext("Spring")
+                .verifyComplete();
+    }
+
+    @Test
+    public void monoTestWithError(){
+        StepVerifier
+                .create(Mono.error(new RuntimeException("Mono error")))
+                .expectError(RuntimeException.class)
                 .verify();
     }
 }
