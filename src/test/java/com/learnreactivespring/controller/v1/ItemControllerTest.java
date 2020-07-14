@@ -1,6 +1,5 @@
 package com.learnreactivespring.controller.v1;
 
-import com.learnreactivespring.constants.ItemConstants;
 import com.learnreactivespring.document.Item;
 import com.learnreactivespring.repository.ItemReactiveRepository;
 import org.junit.Before;
@@ -22,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.learnreactivespring.constants.ItemConstants.ITEM_END_POINT_V1;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -122,4 +121,44 @@ public class ItemControllerTest {
                 .jsonPath("$.description").isEqualTo("Iphone X")
                 .jsonPath("$.price").isEqualTo(999.99);
     }
+
+    @Test
+    public void deleteItem() {
+        webTestClient.delete().uri(ITEM_END_POINT_V1.concat("/{id}"), "ABC")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Void.class);
+    }
+
+    @Test
+    public void updateItem() {
+
+        double newPrice = 129.99;
+        Item item = new Item(null, "Beats Headphones", newPrice);
+
+        webTestClient.put().uri(ITEM_END_POINT_V1.concat("/{id}"), "ABC")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(item), Item.class)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.price", newPrice);
+    }
+
+    @Test
+    public void updateItem_notFound() {
+
+        double newPrice = 129.99;
+        Item item = new Item(null, "Beats Headphones", newPrice);
+
+        webTestClient.put().uri(ITEM_END_POINT_V1.concat("/{id}"), "DEF")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .body(Mono.just(item), Item.class)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
 }
