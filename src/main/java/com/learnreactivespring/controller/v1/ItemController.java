@@ -19,6 +19,15 @@ public class ItemController {
 
     private final ItemReactiveRepository repository;
 
+    /*
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException re) {
+        log.error("Exception caught in handleRuntimeException: {}", re.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(re.getMessage());
+    }
+     */
+
+
     @GetMapping(ITEM_END_POINT_V1)
     public Flux<Item> getAllItems() {
         return repository.findAll();
@@ -55,5 +64,10 @@ public class ItemController {
                 .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping(ITEM_END_POINT_V1 + "/runtimeException")
+    public Flux<Item> runtimeException() {
+        return repository.findAll()
+                .concatWith(Mono.error(new RuntimeException("RuntimeException Occurred.")));
+    }
 
 }
