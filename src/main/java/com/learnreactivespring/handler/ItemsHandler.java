@@ -1,6 +1,8 @@
 package com.learnreactivespring.handler;
 
 import com.learnreactivespring.document.Item;
+import com.learnreactivespring.document.ItemCapped;
+import com.learnreactivespring.repository.ItemReactiveCappedRepository;
 import com.learnreactivespring.repository.ItemReactiveRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -16,6 +18,7 @@ import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 public class ItemsHandler {
 
     private final ItemReactiveRepository repository;
+    private final ItemReactiveCappedRepository itemReactiveCappedRepository;
 
     public Mono<ServerResponse> getAllItems(ServerRequest serverRequest) {
         return ServerResponse.ok()
@@ -73,5 +76,11 @@ public class ItemsHandler {
 
     public Mono<ServerResponse> itemsException(ServerRequest serverRequest) {
         throw new RuntimeException("RuntimeException occurred");
+    }
+
+    public Mono<ServerResponse> itemsStream(ServerRequest serverRequest) {
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_STREAM_JSON)
+                .body(itemReactiveCappedRepository.findItemsBy(), ItemCapped.class);
     }
 }
